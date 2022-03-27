@@ -112,6 +112,7 @@ function assignManipulators(style, settings, view) {
 // ----------------------------------------------------------------------------
 const INFO_STYLE = {
   backgroundColor: '#ffffffcc',
+
   color: '#000000ff',
   border: '2px solid #ccc',
   padding: '0px',
@@ -123,7 +124,7 @@ const INFO_STYLE = {
 const RENDERER_STYLE = {
   position: 'relative',
   width: '100%',
-  height: '90vh',
+  height: '49vh',
   overflow: 'hidden',
 };
 /**
@@ -229,7 +230,6 @@ export default class View extends Component {
           this.resetCamera();
           break;
         default:
-          // console.log(e.code);
           break;
       }
     };
@@ -273,7 +273,9 @@ export default class View extends Component {
         Math.floor(y),
         tolerance
       );
-      this.setState({ hoverInfo: { x: x, y: y } });
+      this.setState({
+        hoverInfo: { x: x.toPrecision(4), y: y.toPrecision(4) },
+      });
 
       // Guard against trigger of empty selection
       if (this.lastSelection.length === 0 && selection.length === 0) {
@@ -374,7 +376,7 @@ export default class View extends Component {
 
   render() {
     const { id, children, style, className } = this.props;
-    console.log(this.state.hoverInfo);
+
     return (
       <div>
         <div
@@ -395,14 +397,14 @@ export default class View extends Component {
           <table style={INFO_STYLE}>
             <thead>
               <tr>
-                <th>x</th>
-                <th>y</th>
+                <th style={{ fontSize: '2em' }}>x</th>
+                <th style={{ fontSize: '2em' }}>y</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>{this.state.hoverInfo.x}</td>
-                <td>{this.state.hoverInfo.y}</td>
+                <td style={{ fontSize: '2em' }}>{this.state.hoverInfo.x}</td>
+                <td style={{ fontSize: '2em' }}>{this.state.hoverInfo.y}</td>
               </tr>
             </tbody>
           </table>
@@ -412,7 +414,6 @@ export default class View extends Component {
   }
 
   onResize() {
-    console.log('onresize');
     const container = this.containerRef.current;
     if (container) {
       const devicePixelRatio = window.devicePixelRatio || 1;
@@ -568,7 +569,6 @@ export default class View extends Component {
   }
 
   resetCamera() {
-    console.log('reset camera');
     this.renderer.resetCamera();
     if (this.props.interactive) {
       this.style.setCenterOfRotation(
@@ -579,7 +579,6 @@ export default class View extends Component {
   }
 
   pickClosest(xp, yp, tolerance) {
-    console.log('pick closest');
     const x1 = Math.floor(xp - tolerance);
     const y1 = Math.floor(yp - tolerance);
     const x2 = Math.ceil(xp + tolerance);

@@ -62,8 +62,10 @@ function App() {
             renderWindow={renderWindows[1]}
             camera={camera}
             pickingModes={["hover"]}
+            showCubeAxes
 
           >
+
             <GeometryRepresentation
               mapper={{
                 // colorByArrayName: 'Pressure',
@@ -100,6 +102,7 @@ function App() {
             renderWindow={renderWindows[2]}
             camera={camera}
             pickingModes={["hover"]}
+            showCubeAxes
           >
             <GeometryRepresentation
               mapper={{
@@ -141,6 +144,7 @@ function App() {
             renderWindow={renderWindows2[1]}
             camera={camera2}
             pickingModes={["hover"]}
+
 
           >
             <ShareDataSet>
