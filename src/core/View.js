@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import { debounce } from '@kitware/vtk.js/macros.js';
 
 import vtkOpenGLRenderWindow from '@kitware/vtk.js/Rendering/OpenGL/RenderWindow.js';
-import vtkRenderWindow from '@kitware/vtk.js/Rendering/Core/RenderWindow.js';
+// import vtkRenderWindow from '@kitware/vtk.js/Rendering/Core/RenderWindow.js';
 import vtkRenderWindowInteractor from '@kitware/vtk.js/Rendering/Core/RenderWindowInteractor.js';
 import vtkRenderer from '@kitware/vtk.js/Rendering/Core/Renderer.js';
 import vtkInteractorStyleManipulator from '@kitware/vtk.js/Interaction/Style/InteractorStyleManipulator.js';
@@ -110,11 +110,20 @@ function assignManipulators(style, settings, view) {
 // ----------------------------------------------------------------------------
 // Default css styles
 // ----------------------------------------------------------------------------
-
-const RENDERER_STYLE = {
+const INFO_STYLE = {
+  backgroundColor: '#ffffffcc',
+  color: '#000000ff',
+  border: '2px solid #ccc',
+  padding: '0px',
+  borderRadius: '5px',
   position: 'absolute',
+  bottom: 0,
+  zIndex: 9999,
+};
+const RENDERER_STYLE = {
+  position: 'relative',
   width: '100%',
-  height: '100%',
+  height: '90vh',
   overflow: 'hidden',
 };
 /**
@@ -129,14 +138,19 @@ const RENDERER_STYLE = {
 export default class View extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      hoverInfo: { x: 0, y: 0 },
+    };
     this.containerRef = React.createRef();
 
     // Create vtk.js view
-    this.renderWindow = vtkRenderWindow.newInstance();
+    // this.renderWindow = vtkRenderWindow.newInstance();
+    this.renderWindow = props.renderWindow;
     this.renderer = vtkRenderer.newInstance();
-    this.renderWindow.addRenderer(this.renderer);
-    this.camera = this.renderer.getActiveCamera();
 
+    this.renderWindow.addRenderer(this.renderer);
+    this.camera = props.camera;
+    this.renderer.setActiveCamera(this.camera);
     this.openglRenderWindow = vtkOpenGLRenderWindow.newInstance();
     this.renderWindow.addView(this.openglRenderWindow);
 
@@ -259,6 +273,7 @@ export default class View extends Component {
         Math.floor(y),
         tolerance
       );
+      this.setState({ hoverInfo: { x: x, y: y } });
 
       // Guard against trigger of empty selection
       if (this.lastSelection.length === 0 && selection.length === 0) {
@@ -359,28 +374,45 @@ export default class View extends Component {
 
   render() {
     const { id, children, style, className } = this.props;
-
+    console.log(this.state.hoverInfo);
     return (
-      <div
-        key={id}
-        id={id}
-        className={className}
-        style={{ position: 'relative', ...style }}
-        onMouseEnter={this.onEnter}
-        onMouseLeave={this.onLeave}
-        onClick={this.onClick}
-        onMouseUp={this.onMouseUp}
-        onMouseMove={this.onMouseMove}
-      >
-        <div style={RENDERER_STYLE} ref={this.containerRef} />
-        <div>
-          <ViewContext.Provider value={this}>{children}</ViewContext.Provider>
+      <div>
+        <div
+          key={id}
+          id={id}
+          className={className}
+          style={{ position: 'relative', ...style }}
+          onMouseEnter={this.onEnter}
+          onMouseLeave={this.onLeave}
+          onClick={this.onClick}
+          onMouseUp={this.onMouseUp}
+          onMouseMove={this.onMouseMove}
+        >
+          <div style={RENDERER_STYLE} ref={this.containerRef} />
+          <div>
+            <ViewContext.Provider value={this}>{children}</ViewContext.Provider>
+          </div>{' '}
+          <table style={INFO_STYLE}>
+            <thead>
+              <tr>
+                <th>x</th>
+                <th>y</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{this.state.hoverInfo.x}</td>
+                <td>{this.state.hoverInfo.y}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     );
   }
 
   onResize() {
+    console.log('onresize');
     const container = this.containerRef.current;
     if (container) {
       const devicePixelRatio = window.devicePixelRatio || 1;
@@ -467,6 +499,7 @@ export default class View extends Component {
       cubeAxesStyle,
       showOrientationAxes,
     } = props;
+
     if (background && (!previous || background !== previous.background)) {
       this.renderer.setBackground(background);
     }
@@ -482,7 +515,7 @@ export default class View extends Component {
       (!previous ||
         cameraParallelProjection !== previous.cameraParallelProjection)
     ) {
-      const camera = this.renderer.getActiveCamera();
+      const camera = props.camera;
       camera.setParallelProjection(cameraParallelProjection);
       if (previous) {
         this.resetCamera();
@@ -494,7 +527,7 @@ export default class View extends Component {
         JSON.stringify(cameraPosition) !==
           JSON.stringify(previous.cameraPosition))
     ) {
-      const camera = this.renderer.getActiveCamera();
+      const camera = props.camera;
       camera.set({
         position: cameraPosition,
         viewUp: cameraViewUp,
@@ -535,6 +568,7 @@ export default class View extends Component {
   }
 
   resetCamera() {
+    console.log('reset camera');
     this.renderer.resetCamera();
     if (this.props.interactive) {
       this.style.setCenterOfRotation(
@@ -545,6 +579,7 @@ export default class View extends Component {
   }
 
   pickClosest(xp, yp, tolerance) {
+    console.log('pick closest');
     const x1 = Math.floor(xp - tolerance);
     const y1 = Math.floor(yp - tolerance);
     const x2 = Math.ceil(xp + tolerance);
@@ -609,6 +644,7 @@ export default class View extends Component {
   }
 
   pick(x1, y1, x2, y2, useFrustrum = false) {
+    console.log('pick');
     this.selector.setArea(x1, y1, x2, y2);
     this.previousSelectedData = null;
     if (this.selector.captureBuffers()) {
@@ -782,6 +818,7 @@ View.propTypes = {
    * Enable/Disable interaction
    */
   interactive: PropTypes.bool,
+  renderWindow: PropTypes.object,
 
   /**
    * Initial camera position from an object in [0,0,0]
@@ -875,6 +912,7 @@ View.propTypes = {
    * User callback function for box select
    */
   onSelect: PropTypes.func,
+  camera: PropTypes.object,
 
   /**
    * Read-only prop. To use this, make sure that `pickingModes` contains `select`.

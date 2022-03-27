@@ -1,99 +1,85 @@
-import React, { lazy, Suspense } from 'react';
+import React from "react";
+import vtkCamera from '@kitware/vtk.js/Rendering/Core/Camera.js';
+import vtkRenderWindow from '@kitware/vtk.js/Rendering/Core/RenderWindow.js';
 
-import useQueryString from './useQueryString';
 
-const Picking = lazy(() => import('./Geometry/Picking'));
-const OBJViewer = lazy(() => import('./Geometry/OBJViewer'));
-const PointCloud = lazy(() => import('./Geometry/PointCloud'));
-const PolyDataViewer = lazy(() => import('./Geometry/PolyDataViewer'));
-const PolyDataWithData = lazy(() => import('./Geometry/PolyDataWithData'));
-const ProcessingPipeline = lazy(() => import('./Geometry/ProcessingPipeline'));
-const SourceViewer = lazy(() => import('./Geometry/SourceViewer'));
-const Glyph = lazy(() => import('./Geometry/Glyph'));
-const CutterExample = lazy(() => import('./Geometry/CutterExample'));
-const SliceRendering = lazy(() => import('./Volume/SliceRendering'));
-const SyntheticVolumeRendering = lazy(() =>
-  import('./Volume/SyntheticVolumeRendering')
-);
-const VolumeRendering = lazy(() => import('./Volume/VolumeRendering'));
-const DynamicUpdate = lazy(() => import('./Volume/DynamicUpdate'));
-
-const demos = [
-  'Geometry/Picking',
-  'Geometry/OBJViewer',
-  'Geometry/PointCloud',
-  'Geometry/PolyDataViewer',
-  'Geometry/PolyDataWithData',
-  'Geometry/ProcessingPipeline',
-  'Geometry/SourceViewer',
-  'Geometry/Glyph',
-  'Geometry/CutterExample',
-  'Volume/SliceRendering',
-  'Volume/SyntheticVolumeRendering',
-  'Volume/VolumeRendering',
-  'Volume/DynamicUpdate',
-];
+import {
+  View,
+  ShareDataSet,
+  Reader,
+  VolumeController,
+  VolumeRepresentation,
+} from 'react-vtk-js';
 
 function App() {
-  const [example, setExample] = useQueryString('demo', 'Geometry/Picking');
+
+
+  var camera = vtkCamera.newInstance();
+  camera.onModified(renderAll);
+
+
+  function renderAll() {
+    for (var i in renderWindows) {
+      renderWindows[i].render();
+
+    }
+  }
+
+  var renderWindows = []
+  renderWindows[1] = vtkRenderWindow.newInstance();
+  renderWindows[2] = vtkRenderWindow.newInstance();
+
 
   return (
     <>
-      <div
-        style={{ position: 'absolute', top: '5px', right: '5px', zIndex: 2 }}
-      >
-        <select
-          value={example}
-          onChange={(e) => {
-            setExample(e.target.value);
-          }}
-        >
-          {demos.map((option) => (
-            <option key={option}>{option}</option>
-          ))}
-        </select>
-        <a
-          href={`https://github.com/Kitware/react-vtk-js/blob/master/usage/${example}.jsx`}
-          target='_blank'
-          rel='noreferrer noopener'
-          style={{
-            padding: '0 5px',
-            background: 'white',
-            borderRadius: '5px',
-            border: 'solid 1px #333',
-            color: '#333',
-            textDecoration: 'none',
-          }}
-        >
-          View source
-        </a>
-      </div>
-      <div
-        style={{
-          border: 0,
-          margin: 0,
-          padding: 0,
-          width: '100vw',
-          height: '100vh',
-        }}
-      >
-        <Suspense fallback={<div>Loading</div>}>
-          {example === 'Geometry/Picking' && <Picking />}
-          {example === 'Geometry/OBJViewer' && <OBJViewer />}
-          {example === 'Geometry/PointCloud' && <PointCloud />}
-          {example === 'Geometry/PolyDataViewer' && <PolyDataViewer />}
-          {example === 'Geometry/PolyDataWithData' && <PolyDataWithData />}
-          {example === 'Geometry/ProcessingPipeline' && <ProcessingPipeline />}
-          {example === 'Geometry/SourceViewer' && <SourceViewer />}
-          {example === 'Geometry/Glyph' && <Glyph />}
-          {example === 'Geometry/CutterExample' && <CutterExample />}
-          {example === 'Volume/SliceRendering' && <SliceRendering />}
-          {example === 'Volume/SyntheticVolumeRendering' && (
-            <SyntheticVolumeRendering />
-          )}
-          {example === 'Volume/VolumeRendering' && <VolumeRendering />}
-          {example === 'Volume/DynamicUpdate' && <DynamicUpdate />}
-        </Suspense>
+      <div style={{ width: '100vw', height: '100vh' }}>
+
+
+        <div style={{ width: '50vw', height: '100vh', display: 'inline-block' }}>
+          <View
+            id='0'
+            background={[0, 0, 0]}
+            cameraPosition={[1, 0, 0]}
+            cameraViewUp={[0, 0, -1]}
+            cameraParallelProjection={false}
+            renderWindow={renderWindows[1]}
+            camera={camera}
+            pickingModes={["hover"]}
+
+          >
+            <ShareDataSet>
+              <Reader
+                vtkClass='vtkXMLImageDataReader'
+                url='https://data.kitware.com/api/v1/item/59e12e988d777f31ac6455c5/download'
+              />
+            </ShareDataSet>
+            <VolumeRepresentation>
+              <div style={{ display: 'none' }}>
+                <VolumeController />
+              </div>
+              <ShareDataSet />
+            </VolumeRepresentation>
+          </View>
+        </div>
+        <div style={{ width: '50vw', height: '100vh', display: 'inline-block' }}>
+          <View
+            id='0'
+            background={[0, 0, 0]}
+            cameraPosition={[1, 0, 0]}
+            cameraViewUp={[0, 0, -1]}
+            cameraParallelProjection={false}
+            renderWindow={renderWindows[2]}
+            camera={camera}
+            pickingModes={["hover"]}
+          >
+            <VolumeRepresentation>
+              <div style={{ display: 'none' }}>
+                <VolumeController />
+              </div>
+              <ShareDataSet />
+            </VolumeRepresentation>
+          </View>
+        </div>
       </div>
     </>
   );

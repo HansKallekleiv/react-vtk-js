@@ -9,7 +9,9 @@
   "module": "dist/esm/index.js",
   "source": "src/index.js",
   "dependencies": {
-    "@babel/runtime": "^7.12.5"
+    "@babel/runtime": "^7.12.5",
+    "@vitejs/plugin-react": "^1.2.0",
+    "vite": "^2.8.6"
   },
   "scripts": {
     "prebuild": "npm run fix",
@@ -25,17 +27,17 @@
     "deploy": "gh-pages -d usage/dist -f -r $GIT_PUBLISH_URL",
     "commit": "git cz",
     "semantic-release": "semantic-release",
-    "dev": "rollup ./src/index.js -c --watch"
+    "dev": "vite"
   },
   "peerDependencies": {
-    "@kitware/vtk.js": "^21.3.0",
+    "@kitware/vtk.js": "^23.4.0",
     "react": "^16.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
     "@babel/plugin-transform-runtime": "^7.12.10",
     "@babel/preset-env": "^7.12.11",
-    "@babel/preset-react": "^7.12.10",
+    "@babel/preset-react": "^7.16.7",
     "@kitware/vtk.js": "^23.0.0",
     "@rollup/plugin-babel": "^5.2.2",
     "@rollup/plugin-commonjs": "17.0.0",
