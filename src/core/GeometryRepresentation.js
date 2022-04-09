@@ -56,9 +56,9 @@ export default class GeometryRepresentation extends Component {
       visibility: false,
       dataBounds: [-1, 1, -1, 1, -1, 1],
     });
-    this.cubeAxes
-      .getActors()
-      .forEach(({ setVisibility }) => setVisibility(false));
+    Array.from(this.cubeAxes.getActors()).forEach(({ setVisibility }) =>
+      setVisibility(false)
+    );
 
     const updateCubeAxes = () => {
       if (this.mapper.getInputData()) {
@@ -209,11 +209,9 @@ export default class GeometryRepresentation extends Component {
     ) {
       changed = true;
       this.cubeAxes.setVisibility(showCubeAxes && this.validData);
-      this.cubeAxes
-        .getActors()
-        .forEach(({ setVisibility }) =>
-          setVisibility(showCubeAxes && this.validData)
-        );
+      Array.from(this.cubeAxes.getActors()).forEach(({ setVisibility }) =>
+        setVisibility(showCubeAxes && this.validData)
+      );
     }
 
     // scalar bars
@@ -244,11 +242,9 @@ export default class GeometryRepresentation extends Component {
       this.scalarBar.setVisibility(this.props.showScalarBar);
       if (this.cubeAxes) {
         this.cubeAxes.setVisibility(this.props.showCubeAxes);
-        this.cubeAxes
-          .getActors()
-          .forEach(({ setVisibility }) =>
-            setVisibility(this.props.showCubeAxes)
-          );
+        Array.from(this.cubeAxes.getActors()).forEach(({ setVisibility }) =>
+          setVisibility(this.props.showCubeAxes)
+        );
       }
       // trigger render
       this.dataChanged();

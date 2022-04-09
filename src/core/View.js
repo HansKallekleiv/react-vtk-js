@@ -239,6 +239,11 @@ export default class View extends Component {
       );
 
       // Share the selection with the rest of the world
+      if (pickingMode === 'click') {
+        if (selection?.length) {
+          this.style.setCenterOfRotation(selection[0].worldPosition);
+        }
+      }
       if (callback) {
         callback(selection[0], event);
       }
